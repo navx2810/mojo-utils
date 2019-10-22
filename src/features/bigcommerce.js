@@ -1,13 +1,27 @@
-window.mojo.bc = new (class {
-	addToCart(sku, quantity = 1) {
+import axios from 'axios';
 
+const api = axios.create({
+	baseURL: '/api/storefront/cart'
+});
+
+export default new (class {
+	async readCart() {
+		const res = await api.get(null, {
+			params: {
+				include: [
+					'lineItems.digitalItems.options',
+					'lineItems.physicalItems.options'
+				]
+			}
+		});
+		return res.data;
     }
-
-	removeFromCart(sku) {
-
-    }
-
-	updateQuantity(sku, quantity = 1) {
-        
+    
+    async addItem(productId, quantity = 1) {
+        const cart = await this.readCart();
+        if(cart.id) {
+            const res = await api.post(cart.id)
+            return res.data
+        }
     }
 })();
